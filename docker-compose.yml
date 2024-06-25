@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db-laravel:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: laravel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      laravel_test_network:
+        ipv4_address: 132.25.0.11
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db-laravel
+    networks:
+      - laravel_test_network
+
+networks:
+  laravel_test_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 132.25.0.0/16
+
+volumes:
+  postgres_data:
